@@ -1,0 +1,140 @@
+name: Kernel Build - Generic
+
+# Node.js 24 compatibility
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      # ==================== Kernel Source Config ====================
+      kernel_repo:
+        description: "Kernel source repository URL (git URL)"
+        required: true
+        type: string
+      kernel_branch:
+        description: "Branch name"
+        required: true
+        type: string
+      enable_kpm:
+        description: "Enable CONFIG_KPM=y (arch/arm64/configs/gki_defconfig)"
+        required: true
+        type: boolean
+        default: false
+
+      # ==================== Basic Config ====================
+      android_version:
+        description: "Android version (e.g. android12)"
+        required: true
+        type: string
+        default: "android12"
+      kernel_version:
+        description: "Kernel version (e.g. 5.10)"
+        required: true
+        type: string
+        default: "5.10"
+      sub_level:
+        description: "Sub-level number (e.g. 66)"
+        required: true
+        type: string
+      os_patch_level:
+        description: "OS patch level (e.g. 2022-01)"
+        required: true
+        type: string
+      revision:
+        description: "GKI revision (e.g. r11, optional)"
+        required: false
+        type: string
+        default: ""
+
+      # KernelSU variant is fixed to ReSukiSU
+      kernelsu_branch:
+        description: "KSU branch (main/builtin/custom commit hash, leave empty for default)"
+        required: false
+        type: string
+        default: ""
+      version:
+        description: "Custom version name (optional)"
+        required: false
+        type: string
+      build_time:
+        description: "Custom build time (optional, N or empty = current UTC)"
+        required: false
+        type: string
+        default: "Sun Dec 01 08:10:00 UTC 2024"
+      use_zram:
+        description: "Enable ZRAM enhanced algorithms"
+        required: true
+        type: boolean
+        default: false
+      use_bbg:
+        description: "Enable BBG (Baseband Guard)"
+        required: true
+        type: boolean
+        default: false
+      use_rekernel:
+        description: "Enable Re-Kernel driver"
+        required: false
+        type: boolean
+        default: false
+      cve_2026_43499_patch:
+        description: "Apply CVE-2026-43499 rtmutex fix chain"
+        required: false
+        type: boolean
+        default: true
+      cancel_susfs:
+        description: "Disable SUSFS"
+        required: true
+        type: boolean
+        default: false
+      droidspaces:
+        description: "Droidspaces container support"
+        required: false
+        type: choice
+        options:
+          - "off"
+          - "678"
+          - "123"
+          - "345"
+        default: "off"
+      droidspaces_ntsync:
+        description: "Enable Droidspaces container NTSync support (requires Droidspaces)"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build-kernel-generic:
+    name: "${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}"
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    with:
+      kernel_repo: ${{ inputs.kernel_repo }}
+      kernel_branch: ${{ inputs.kernel_branch }}
+      enable_kpm: ${{ inputs.enable_kpm }}
+      android_version: ${{ inputs.android_version }}
+      kernel_version: ${{ inputs.kernel_version }}
+      sub_level: ${{ inputs.sub_level }}
+      os_patch_level: ${{ inputs.os_patch_level }}
+      revision: ${{ inputs.revision }}
+      ksu_variant: "ReSukiSU"
+      ksu_branch: ${{ inputs.kernelsu_branch }}
+      version: ${{ inputs.version || '' }}
+      build_time: ${{ inputs.build_time || '' }}
+      use_zram: ${{ inputs.use_zram }}
+      use_bbg: ${{ inputs.use_bbg }}
+      use_rekernel: ${{ inputs.use_rekernel || false }}
+      cve_2026_43499_patch: ${{ inputs.cve_2026_43499_patch }}
+      supp_op: false
+      enable_susfs: ${{ !inputs.cancel_susfs }}
+      droidspaces: ${{ inputs.droidspaces || 'off' }}
+      droidspaces_ntsync: ${{ inputs.droidspaces_ntsync || false }}
+
+  get-ksu-manager:
+    uses: ./.github/workflows/get-manager.yml
+    secrets: inherit
+    
