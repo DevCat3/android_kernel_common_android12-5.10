@@ -184,7 +184,7 @@ jobs:
 
       - name: Clone AnyKernel3
         run: |
-          git clone https://github.com/ReSukiSU-GKI/AnyKernel3.git -b "master"
+          git clone https://github.com/DevCat3/AnyKernel3.git -b "master"
           rm -rf AnyKernel3/.git
 
       - name: Setup repo tool
