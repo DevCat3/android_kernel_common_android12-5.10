@@ -259,7 +259,7 @@ jobs:
           SUSFS_BRANCH="gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}"
 
           echo "Cloning AnyKernel3..."
-          git clone https://github.com/ReSukiSU-GKI/AnyKernel3.git -b "master"
+          git clone https://github.com/DevCat3/AnyKernel3.git -b "master"
           rm -rf AnyKernel3/.git
 
           echo "Cloning SUSFS (branch: $SUSFS_BRANCH)..."
